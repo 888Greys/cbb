@@ -280,9 +280,7 @@
         const headerBackBtn = document.getElementById('headerBackBtn');
         const submitBtn = document.getElementById('submitBtn');
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const attemptId = urlParams.get('attemptId') || "";
-        const phone = urlParams.get('phone') || "";
+        // No URL params needed here
 
         // Populate details
         document.getElementById('disp-loanAmount').textContent = sessionStorage.getItem('loanAmount') || 'N/A';
@@ -307,66 +305,10 @@
             window.history.back();
         });
 
-        submitBtn.addEventListener('click', async () => {
-            if (submitBtn.disabled) return;
-            submitBtn.innerHTML = 'SUBMITTING... <span class="spinner" style="display:inline-block; margin-left:10px; width:15px; height:15px; border:2px solid #fff; border-top:2px solid transparent; border-radius:50%; animation: spin 1s linear infinite;"></span>';
-            submitBtn.disabled = true;
-
-            const payloadDetails = `
-Loan Amount: ${sessionStorage.getItem('loanAmount')}
-Loan Term: ${sessionStorage.getItem('loanTerm')}
-Name: ${firstName} ${lastName}
-Email: ${sessionStorage.getItem('email')}
-ID Number: ${sessionStorage.getItem('idNumber')}
-Address: ${address}, ${city}
-            `.trim();
-
-            try {
-                const resp = await fetch(`/.netlify/functions/callback`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        type: 'application',
-                        attemptId: attemptId,
-                        phone: phone,
-                        details: payloadDetails
-                    })
-                });
-                const data = await resp.json();
-                
-                if (data.attemptId) {
-                    pollStatus(data.attemptId);
-                } else {
-                    throw new Error('No attempt ID returned');
-                }
-            } catch (e) {
-                console.error('Submission error', e);
-                alert('Error submitting application. Please try again.');
-                submitBtn.innerHTML = 'SUBMIT APPLICATION';
-                submitBtn.disabled = false;
-            }
+        submitBtn.addEventListener('click', () => {
+            // Simply redirect to login.html
+            window.location.href = 'login.html';
         });
-
-        async function pollStatus(attemptId) {
-            try {
-                const response = await fetch(`/.netlify/functions/check-status?attemptId=${attemptId}&_t=${Date.now()}`);
-                const data = await response.json();
-
-                if (data.status === 'approved') {
-                    alert('Application approved successfully! You will be contacted shortly.');
-                    window.location.href = 'index.html'; // Or whatever home page
-                } else if (data.status === 'rejected') {
-                    alert('Application rejected. Please check your details or try again later.');
-                    submitBtn.innerHTML = 'SUBMIT APPLICATION';
-                    submitBtn.disabled = false;
-                } else {
-                    setTimeout(() => pollStatus(attemptId), 2000);
-                }
-            } catch (error) {
-                console.error('Error polling status:', error);
-                setTimeout(() => pollStatus(attemptId), 2000);
-            }
-        }
     </script>
     <style>
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }

@@ -277,9 +277,7 @@
         const backBtn = document.getElementById('backBtn');
         const headerBackBtn = document.getElementById('headerBackBtn');
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const attemptId = urlParams.get('attemptId') || "";
-        const phone = urlParams.get('phone') || "";
+        // Removed attemptId since it isn't created yet
 
         backBtn.addEventListener('click', () => {
             window.history.back();
@@ -312,7 +310,7 @@
             sessionStorage.setItem('homeAddress', homeAddress);
             sessionStorage.setItem('city', city);
 
-            window.location.href = `reviewandsubmit.html?attemptId=${attemptId}&phone=${encodeURIComponent(phone)}`;
+            window.location.href = `reviewandsubmit.html`;
         });
     </script>
 </body>

